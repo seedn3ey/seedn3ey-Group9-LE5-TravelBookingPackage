@@ -82,6 +82,24 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
     <meta charset="UTF-8">
     <title>Manage Packages - Admin</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* CSS to handle the Peso sign inside the input box */
+        .currency-wrap {
+            position: relative;
+            display: inline-block; /* Or block, depending on your style.css layout */
+        }
+        .currency-symbol {
+            position: absolute;
+            left: 10px;          
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            pointer-events: none; 
+        }
+        #price {
+            padding-left: 28px;  
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
@@ -120,17 +138,17 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
 
             <label for="price">Price (PHP)</label>
             <div class="currency-wrap">
-            <span class="currency-symbol">₱</span>
-            <input 
-                type="number" 
-                id="price" 
-                name="price" 
-                min="1" 
-                step="1" 
-                pattern="\d*"
-                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                value="<?= isset($_POST['price']) ? htmlspecialchars($_POST['price']) : '' ?>"
-            >
+                <span class="currency-symbol">₱</span>
+                <input 
+                    type="number" 
+                    id="price" 
+                    name="price" 
+                    min="1" 
+                    step="1" 
+                    pattern="\d*"
+                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    value="<?= isset($_POST['price']) ? htmlspecialchars($_POST['price']) : '' ?>"
+                >
             </div>
 
             <label for="duration">Duration</label>
@@ -142,7 +160,12 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
         <h2>Current Packages</h2>
         <table>
             <tr>
-                <th>ID</th><th>Name</th><th>Destination</th><th>Price</th><th>Duration</th><th></th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Destination</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th></th>
             </tr>
             <?php foreach ($packages->package as $pkg): ?>
             <tr>
@@ -159,7 +182,14 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
         <h2>All Bookings (System Records)</h2>
         <table>
             <tr>
-                <th>Passenger</th><th>Email</th><th>Contact</th><th>Package</th><th>Travel Date</th><th>Travelers</th><th>Booked By</th>
+                <th>Passenger</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Package</th>
+                <th>Travel Date</th>
+                <th>End Date</th> <!-- Newly Added Header -->
+                <th>Travelers</th>
+                <th>Booked By</th>
             </tr>
             <?php foreach ($bookings->booking as $b): ?>
             <tr>
@@ -168,6 +198,8 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
                 <td><?= htmlspecialchars((string) $b->contact_number) ?></td>
                 <td><?= htmlspecialchars((string) $b->package_name) ?></td>
                 <td><?= htmlspecialchars((string) $b->travel_date) ?></td>
+                <!-- Added End Date Output matching your user-side logic -->
+                <td><?= htmlspecialchars((string) ($b->end_date ?? 'N/A')) ?></td>
                 <td><?= htmlspecialchars((string) $b->travelers) ?></td>
                 <td><?= htmlspecialchars((string) $b->username) ?></td>
             </tr>
