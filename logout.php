@@ -1,6 +1,6 @@
 <?php
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Logs the current user out. Clears all session data, expires the

@@ -1,6 +1,6 @@
 <?php
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Admin-only page for managing the system's core data: adding or

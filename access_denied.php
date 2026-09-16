@@ -1,6 +1,6 @@
 <?php
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Security Feature 9. Shown whenever a logged-in user tries to open

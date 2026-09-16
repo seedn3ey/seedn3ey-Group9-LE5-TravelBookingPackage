@@ -1,6 +1,6 @@
 <?php
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Entry point of the Travel Package Booking System. Sends guests to

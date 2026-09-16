@@ -1,6 +1,6 @@
 <?php
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Main system form of the Travel Package Booking System. A logged-in
