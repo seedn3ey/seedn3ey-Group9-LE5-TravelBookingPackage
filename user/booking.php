@@ -6,8 +6,8 @@
  *   Main system form of the Travel Package Booking System. A logged-in
  *   regular user selects a travel package and submits their booking
  *   details. Demonstrates required-field, email, number-range, length,
- *   and date validation, then stores the booking in xml/bookings.xml
- *   and shows a summary confirmation.
+ *   and date validation, dynamic end-date calculation, then stores the
+ *   booking in xml/bookings.xml and shows a summary confirmation.
  */
 
 require_once '../includes/session_check.php';
@@ -39,20 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!is_required($passenger_LastName)) {
         $errors[] = "Passenger Last name is required.";
     } elseif (!is_min_length($passenger_LastName, 5)) {
-        // ---- Length validation ----
         $errors[] = "Passenger Last name must contain at least 5 characters.";
     } elseif (preg_match('/\d/', $passenger_LastName)) {
-        // ---- Numeric validation ----
         $errors[] = "Passenger Last name cannot contain numbers.";
     }
 
     if (!is_required($passenger_FirstName)) {
         $errors[] = "Passenger First name is required.";
     } elseif (!is_min_length($passenger_FirstName, 5)) {
-        // ---- Length validation ----
         $errors[] = "Passenger First name must contain at least 5 characters.";
     } elseif (preg_match('/\d/', $passenger_FirstName)) {
-        // ---- Numeric validation ----
         $errors[] = "Passenger First name cannot contain numbers.";
     }
 
@@ -81,14 +77,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Contact number must start with 09 and contain 11 digits";
     }
 
-    // ---- Package selection ----
+    // ---- Package selection & calculation ----
     $selected_package = null;
+    $duration_days = 3; // Default duration fallback
+
     if (!is_required($package_id)) {
         $errors[] = "Please select a travel package.";
     } else {
         foreach ($packages->package as $pkg) {
             if ((string) $pkg->id === $package_id) {
                 $selected_package = $pkg;
+                if (isset($pkg->duration)) {
+                    $duration_days = (int) $pkg->duration;
+                }
                 break;
             }
         }
@@ -97,11 +98,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ---- Date validation ----
+    // ---- Date validation & End Date calculation ----
+    $end_date = '';
     if (!is_required($travel_date)) {
         $errors[] = "Travel date is required.";
     } elseif (!is_not_past_date($travel_date)) {
         $errors[] = "Travel date cannot be in the past.";
+    } else {
+        // Calculate End Date: travel_date + duration_days
+        $date = new DateTime($travel_date);
+        $date->modify("+$duration_days days");
+        $end_date = $date->format('Y-m-d');
     }
 
     // ---- Number validation ----
@@ -125,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_booking->addChild('contact_number', htmlspecialchars($contact_number));
         $new_booking->addChild('package_name', htmlspecialchars((string) $selected_package->name));
         $new_booking->addChild('travel_date', htmlspecialchars($travel_date));
+        $new_booking->addChild('end_date', htmlspecialchars($end_date));
         $new_booking->addChild('travelers', htmlspecialchars($travelers));
         $new_booking->addChild('booked_on', date('Y-m-d H:i:s'));
         $bookings->asXML($bookings_file);
@@ -140,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'destination'         => (string) $selected_package->destination,
             'price'               => (string) $selected_package->price,
             'travel_date'         => $travel_date,
+            'end_date'            => $end_date,
             'travelers'           => $travelers,
         ];
     }
@@ -158,6 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: -8px;
             margin-bottom: 10px;
             display: none;
+        }
+        .computed-info {
+            font-size: 0.9em;
+            color: #2e6da4;
+            font-weight: bold;
+            margin-top: -5px;
+            margin-bottom: 15px;
         }
         button:disabled {
             background-color: #cccccc;
@@ -204,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tr><th>Destination</th><td><?= htmlspecialchars($booking_summary['destination']) ?></td></tr>
                 <tr><th>Price</th><td>PHP <?= htmlspecialchars($booking_summary['price']) ?></td></tr>
                 <tr><th>Travel Date</th><td><?= htmlspecialchars($booking_summary['travel_date']) ?></td></tr>
+                <tr><th>End Date</th><td><?= htmlspecialchars($booking_summary['end_date']) ?></td></tr>
                 <tr><th>Number of Travelers</th><td><?= htmlspecialchars($booking_summary['travelers']) ?></td></tr>
             </table>
             <a class="btn" href="booking.php">Book Another Package</a>
@@ -267,11 +284,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <label for="package_id">Travel Package</label>
                 <select id="package_id" name="package_id" required>
-                    <option value="">-- Select a package --</option>
+                    <option value="" data-duration="0">-- Select a package --</option>
                     <?php foreach ($packages->package as $pkg): ?>
+                        <?php $duration = isset($pkg->duration) ? (int)$pkg->duration : 3; ?>
                         <option value="<?= htmlspecialchars((string) $pkg->id) ?>"
+                            data-duration="<?= $duration ?>"
                             <?= (isset($_POST['package_id']) && $_POST['package_id'] === (string) $pkg->id) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars((string) $pkg->name) ?> - <?= htmlspecialchars((string) $pkg->destination) ?> (PHP <?= htmlspecialchars((string) $pkg->price) ?>)
+                            <?= htmlspecialchars((string) $pkg->name) ?> - <?= htmlspecialchars((string) $pkg->destination) ?> (PHP <?= htmlspecialchars((string) $pkg->price) ?>) [<?= $duration ?> Days]
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -286,6 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     min="<?= date('Y-m-d') ?>" 
                     value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
                 <div class="inline-error" id="error_travel_date"></div>
+                <div class="computed-info" id="computed_end_date"></div>
 
                 <label for="travelers">Number of Travelers</label>
                 <input 
@@ -399,6 +419,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         showError("contact_number", "");
                     }
                 });
+
+                // Travel Date & Package End Date calculation
+                const packageSelect = document.getElementById("package_id");
+                const travelDateInput = document.getElementById("travel_date");
+                const computedEndDateDiv = document.getElementById("computed_end_date");
+
+                function calculateEndDate() {
+                    const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+                    const durationDays = parseInt(selectedOption.getAttribute("data-duration") || "0", 10);
+                    const startDateVal = travelDateInput.value;
+
+                    if (startDateVal && durationDays > 0) {
+                        const startDate = new Date(startDateVal);
+                        startDate.setDate(startDate.getDate() + durationDays);
+                        
+                        const yyyy = startDate.getFullYear();
+                        const mm = String(startDate.getMonth() + 1).padStart(2, '0');
+                        const dd = String(startDate.getDate()).padStart(2, '0');
+                        
+                        computedEndDateDiv.innerText = `Calculated End Date: ${yyyy}-${mm}-${dd} (${durationDays} Days)`;
+                    } else {
+                        computedEndDateDiv.innerText = "";
+                    }
+                }
+
+                packageSelect.addEventListener("change", calculateEndDate);
+                travelDateInput.addEventListener("change", calculateEndDate);
+                travelDateInput.addEventListener("input", calculateEndDate);
 
                 // Travelers validation
                 const travelersInput = document.getElementById("travelers");
