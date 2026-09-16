@@ -76,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ---- Contact number ----
     if (!is_required($contact_number)) {
         $errors[] = "Contact number is required.";
-    } elseif (!is_valid_contact_number($contact_number)) {
-        $errors[] = "Contact number must contain 7 to 15 digits only.";
+    } elseif (!preg_match('/^09\d{9}$/', $contact_number)) {
+        $errors[] = "Contact number must start with 09 and contain 11 digits";
     }
 
     // ---- Package selection ----
@@ -199,11 +199,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="passenger_LastName">Passenger Last Name</label>
                 <input type="text" id="passenger_LastName" name="passenger_LastName" value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
 
-                <label for="passenger_MiddleName">Passenger Middle Name</label>
-                <input type="text" id="passenger_MiddleName" name="passenger_MiddleName" value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
-
                 <label for="passenger_FirstName">Passenger First Name</label>
                 <input type="text" id="passenger_FirstName" name="passenger_FirstName" value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
+
+                <label for="passenger_MiddleName">Passenger Middle Name</label>
+                <input type="text" id="passenger_MiddleName" name="passenger_MiddleName" value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
