@@ -158,3 +158,22 @@ th {
     display: inline-block;
     margin: 8px 10px 8px 0;
 }
+
+
+.currency-wrap {
+    position: relative;
+    display: inline-block; /* Or block, depending on your layout */
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 10px;          /* Distance from the left edge */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555;
+    pointer-events: none; /* Ensures clicking the '₱' still focuses the input */
+}
+
+#price {
+    padding-left: 28px;  /* Makes room for the Peso sign */
+}

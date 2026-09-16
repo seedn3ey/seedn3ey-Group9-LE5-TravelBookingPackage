@@ -119,7 +119,19 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
             <input type="text" id="destination" name="destination" value="<?= isset($_POST['destination']) ? htmlspecialchars($_POST['destination']) : '' ?>">
 
             <label for="price">Price (PHP)</label>
-            <input type="number" id="price" name="price" min="1" step="1" value="<?= isset($_POST['price']) ? htmlspecialchars($_POST['price']) : '' ?>">
+            <div class="currency-wrap">
+            <span class="currency-symbol">₱</span>
+            <input 
+                type="number" 
+                id="price" 
+                name="price" 
+                min="1" 
+                step="1" 
+                pattern="\d*"
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                value="<?= isset($_POST['price']) ? htmlspecialchars($_POST['price']) : '' ?>"
+            >
+            </div>
 
             <label for="duration">Duration</label>
             <input type="text" id="duration" name="duration" placeholder="e.g. 3 Days / 2 Nights" value="<?= isset($_POST['duration']) ? htmlspecialchars($_POST['duration']) : '' ?>">
