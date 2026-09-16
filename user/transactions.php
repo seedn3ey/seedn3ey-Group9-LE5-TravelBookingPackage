@@ -4,7 +4,8 @@
  * Date Created    : September 16, 2026
  * Problem Description:
  *   Shows only the bookings that belong to the currently logged-in
- *   user (never other users' transactions), pulled from xml/bookings.xml.
+ *   user (never other users' transactions), pulled from xml/bookings.xml,
+ *   including calculated travel end dates.
  */
 
 require_once '../includes/session_check.php';
@@ -47,12 +48,17 @@ foreach ($bookings->booking as $b) {
         <?php else: ?>
             <table>
                 <tr>
-                    <th>Package</th><th>Travel Date</th><th>Travelers</th><th>Booked On</th>
+                    <th>Package</th>
+                    <th>Travel Date</th>
+                    <th>End Date</th>
+                    <th>Travelers</th>
+                    <th>Booked On</th>
                 </tr>
                 <?php foreach ($my_bookings as $b): ?>
                 <tr>
                     <td><?= htmlspecialchars((string) $b->package_name) ?></td>
                     <td><?= htmlspecialchars((string) $b->travel_date) ?></td>
+                    <td><?= htmlspecialchars((string) ($b->end_date ?? 'N/A')) ?></td>
                     <td><?= htmlspecialchars((string) $b->travelers) ?></td>
                     <td><?= htmlspecialchars((string) $b->booked_on) ?></td>
                 </tr>
