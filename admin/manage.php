@@ -153,15 +153,32 @@ $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
         <h2 style="color: #16124c;">All Bookings (System Records)</h2>
         <table>
             <tr>
-                <th>Passenger</th><th>Email</th><th>Contact</th><th>Package</th><th>Travel Date</th><th>Travelers</th><th>Booked By</th>
+                <th>Passenger</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Package</th>
+                <th>Travel Date</th>
+                <th>End Date</th>
+                <th>Travelers</th>
+                <th>Booked By</th>
             </tr>
-            <?php foreach ($bookings->booking as $b): ?>
+            <?php foreach ($bookings->booking as $b): 
+                // Calculate end date on the fly if missing from older XML entries (defaults to +3 days)
+                if (isset($b->end_date) && !empty((string)$b->end_date)) {
+                    $display_end_date = (string)$b->end_date;
+                } else {
+                    $date = new DateTime((string)$b->travel_date);
+                    $date->modify('+3 days');
+                    $display_end_date = $date->format('Y-m-d');
+                }
+            ?>
             <tr>
                 <td><?= htmlspecialchars((string) $b->passenger_FirstName) ?> <?= htmlspecialchars((string) $b->passenger_LastName) ?></td>
                 <td><?= htmlspecialchars((string) $b->email) ?></td>
                 <td><?= htmlspecialchars((string) $b->contact_number) ?></td>
                 <td><?= htmlspecialchars((string) $b->package_name) ?></td>
                 <td><?= htmlspecialchars((string) $b->travel_date) ?></td>
+                <td><?= htmlspecialchars($display_end_date) ?></td>
                 <td><?= htmlspecialchars((string) $b->travelers) ?></td>
                 <td><?= htmlspecialchars((string) $b->username) ?></td>
             </tr>
