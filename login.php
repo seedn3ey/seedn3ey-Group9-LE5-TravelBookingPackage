@@ -13,7 +13,6 @@
 require_once 'includes/session_check.php';
 require_once 'includes/security.php';
 
-// Already logged in? Skip straight to the dashboard.
 if (isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
@@ -21,9 +20,8 @@ if (isset($_SESSION['username'])) {
 
 $errors = [];
 $username_value = isset($_COOKIE['remember_username']) ? $_COOKIE['remember_username'] : '';
-
-// Friendly message when redirected here by session_check.php
 $notice = '';
+
 if (isset($_GET['msg'])) {
     if ($_GET['msg'] === 'timeout') {
         $notice = 'Your session has expired. Please login again.';
@@ -34,17 +32,12 @@ if (isset($_GET['msg'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = clean_input($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? ''; // compared raw, not echoed back
+    $password = $_POST['password'] ?? ''; 
     $remember = isset($_POST['remember']);
     $username_value = $username;
 
-    // ---- Security Feature 1: Login Validation ----
-    if (!is_required($username)) {
-        $errors[] = "Username is required.";
-    }
-    if (!is_required($password)) {
-        $errors[] = "Password is required.";
-    }
+    if (!is_required($username)) $errors[] = "Username is required.";
+    if (!is_required($password)) $errors[] = "Password is required.";
 
     if (empty($errors)) {
         $users = simplexml_load_file(__DIR__ . '/xml/users.xml');
@@ -58,23 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($matched_user === null) {
-            // Generic message only - never reveal which field was wrong
             $errors[] = "Invalid username or password.";
         } else {
-            // ---- Security Feature 2: PHP Session ----
-            session_regenerate_id(true); // guard against session fixation
+            session_regenerate_id(true); 
             $_SESSION['username']      = (string) $matched_user->username;
             $_SESSION['role']          = (string) $matched_user->role;
             $_SESSION['fullname']      = (string) $matched_user->fullname;
             $_SESSION['last_activity'] = time();
 
-            // ---- Security Feature 5: Cookie (username only) ----
             if ($remember) {
                 setcookie('remember_username', $username, time() + (30 * 24 * 60 * 60), '/');
             } else {
                 setcookie('remember_username', '', time() - 3600, '/');
             }
-
             header("Location: index.php");
             exit();
         }
@@ -85,13 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Travel Package Booking System</title>
+    <title>Login - Aurelia Luxury Flight</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Travel Package Booking System</h1>
-        <h2>Login</h2>
+    <div class="login-wrapper">
+        <div class="logo-circle">
+            <img src="css/LOGO.png" alt="Aurelia Flight">
+        </div>
+        
+        <div class="brand-header">
+            <h1>AURELIA</h1>
+            <div class="subtitle">
+                <span class="line"></span>
+                <p>Where Luxury Takes Flight</p>
+                <span class="line"></span>
+            </div>
+        </div>
 
         <?php if ($notice): ?>
             <div class="notice-box"><?= htmlspecialchars($notice) ?></div>
@@ -107,23 +106,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <!-- Login form: username, password, remember-username checkbox -->
-        <form method="POST" action="login.php">
+        <form class="login-form" method="POST" action="login.php">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" value="<?= htmlspecialchars($username_value) ?>">
 
             <label for="password">Password</label>
             <input type="password" id="password" name="password">
-
+            
             <div class="checkbox-row">
                 <input type="checkbox" id="remember" name="remember" <?= $username_value !== '' ? 'checked' : '' ?>>
-                <label for="remember" style="margin:0;">Remember my username</label>
+                <label for="remember">Remember my username</label>
             </div>
 
-            <button type="submit">LOGIN</button>
+            <div class="btn-container">
+                <button type="submit" class="btn-gold">LOGIN</button>
+            </div>
         </form>
 
-        <p style="margin-top:20px; font-size:13px; color:#666;">
+        <p style="margin-top:30px; font-size:12px; color:#a99d79; text-align:center;">
             Demo accounts &mdash; Admin: admin01 / Admin@123 &nbsp;|&nbsp; User: user01 / User@123
         </p>
     </div>

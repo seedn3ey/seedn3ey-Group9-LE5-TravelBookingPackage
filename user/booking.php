@@ -22,122 +22,72 @@ $bookings_file = __DIR__ . '/../xml/bookings.xml';
 $packages = simplexml_load_file($packages_file);
 
 $errors = [];
-$booking_summary = null; // holds data to display after a successful submission
+$booking_summary = null; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $passenger_LastName = clean_input($_POST['passenger_LastName'] ?? '');
     $passenger_FirstName = clean_input($_POST['passenger_FirstName'] ?? '');
     $passenger_MiddleName = clean_input($_POST['passenger_MiddleName'] ?? '');
-
     $email          = clean_input($_POST['email'] ?? '');
     $contact_number = clean_input($_POST['contact_number'] ?? '');
     $package_id     = clean_input($_POST['package_id'] ?? '');
     $travel_date    = clean_input($_POST['travel_date'] ?? '');
     $travelers      = clean_input($_POST['travelers'] ?? '');
 
-    // ---- Required fields ----
-    if (!is_required($passenger_LastName)) {
-        $errors[] = "Passenger Last name is required.";
-    } elseif (!is_min_length($passenger_LastName, 5)) {
-        $errors[] = "Passenger Last name must contain at least 5 characters.";
-    } elseif (preg_match('/\d/', $passenger_LastName)) {
-        $errors[] = "Passenger Last name cannot contain numbers.";
-    }
+    if (!is_required($passenger_LastName)) $errors[] = "Passenger Last name is required.";
+    elseif (!is_min_length($passenger_LastName, 5)) $errors[] = "Passenger Last name must contain at least 5 characters.";
+    elseif (preg_match('/\d/', $passenger_LastName)) $errors[] = "Passenger Last name cannot contain numbers.";
 
-    if (!is_required($passenger_FirstName)) {
-        $errors[] = "Passenger First name is required.";
-    } elseif (!is_min_length($passenger_FirstName, 5)) {
-        $errors[] = "Passenger First name must contain at least 5 characters.";
-    } elseif (preg_match('/\d/', $passenger_FirstName)) {
-        $errors[] = "Passenger First name cannot contain numbers.";
-    }
+    if (!is_required($passenger_FirstName)) $errors[] = "Passenger First name is required.";
+    elseif (!is_min_length($passenger_FirstName, 5)) $errors[] = "Passenger First name must contain at least 5 characters.";
+    elseif (preg_match('/\d/', $passenger_FirstName)) $errors[] = "Passenger First name cannot contain numbers.";
 
-    // ---- Optional Middle Name validation ----
     if (is_required($passenger_MiddleName)) {
-        if (!is_min_length($passenger_MiddleName, 5)) {
-            $errors[] = "Passenger Middle name must contain at least 5 characters if provided.";
-        } elseif (preg_match('/\d/', $passenger_MiddleName)) {
-            $errors[] = "Passenger Middle name cannot contain numbers.";
-        }
+        if (!is_min_length($passenger_MiddleName, 5)) $errors[] = "Passenger Middle name must contain at least 5 characters if provided.";
+        elseif (preg_match('/\d/', $passenger_MiddleName)) $errors[] = "Passenger Middle name cannot contain numbers.";
     } else {
         $passenger_MiddleName = 'N/A';
     }
 
-    // ---- Email validation ----
-    if (!is_required($email)) {
-        $errors[] = "Email is required.";
-    } elseif (!is_valid_email($email) || !preg_match('/@(gmail\.com|yahoo\.com)$/i', $email)) {
-        $errors[] = "Email must end with @gmail.com or @yahoo.com.";
-    }
+    if (!is_required($email)) $errors[] = "Email is required.";
+    elseif (!is_valid_email($email) || !preg_match('/@(gmail\.com|yahoo\.com)$/i', $email)) $errors[] = "Email must end with @gmail.com or @yahoo.com.";
 
-    // ---- Contact number ----
-    if (!is_required($contact_number)) {
-        $errors[] = "Contact number is required.";
-    } elseif (!preg_match('/^09\d{9}$/', $contact_number)) {
-        $errors[] = "Contact number must start with 09 and contain 11 digits";
-    }
+    if (!is_required($contact_number)) $errors[] = "Contact number is required.";
+    elseif (!preg_match('/^09\d{9}$/', $contact_number)) $errors[] = "Contact number must start with 09 and contain 11 digits";
 
-    // ---- Package selection & calculation ----
     $selected_package = null;
-    $duration_days = 3; // Default duration fallback
-
-    if (!is_required($package_id)) {
-        $errors[] = "Please select a travel package.";
-    } else {
+    if (!is_required($package_id)) $errors[] = "Please select a travel package.";
+    else {
         foreach ($packages->package as $pkg) {
             if ((string) $pkg->id === $package_id) {
                 $selected_package = $pkg;
-                if (isset($pkg->duration)) {
-                    $duration_days = (int) $pkg->duration;
-                }
                 break;
             }
         }
-        if ($selected_package === null) {
-            $errors[] = "Selected travel package is not valid.";
-        }
+        if ($selected_package === null) $errors[] = "Selected travel package is not valid.";
     }
 
-    // ---- Date validation & End Date calculation ----
-    $end_date = '';
-    if (!is_required($travel_date)) {
-        $errors[] = "Travel date is required.";
-    } elseif (!is_not_past_date($travel_date)) {
-        $errors[] = "Travel date cannot be in the past.";
-    } else {
-        // Calculate End Date: travel_date + duration_days
-        $date = new DateTime($travel_date);
-        $date->modify("+$duration_days days");
-        $end_date = $date->format('Y-m-d');
-    }
+    if (!is_required($travel_date)) $errors[] = "Travel date is required.";
+    elseif (!is_not_past_date($travel_date)) $errors[] = "Travel date cannot be in the past.";
 
-    // ---- Number validation ----
-    if (!is_required($travelers)) {
-        $errors[] = "Number of travelers is required.";
-    } elseif (!is_numeric($travelers) || $travelers < 1 || $travelers > 10) {
-        $errors[] = "Number of travelers must be between 1 and 10.";
-    }
+    if (!is_required($travelers)) $errors[] = "Number of travelers is required.";
+    elseif (!is_numeric($travelers) || $travelers < 1 || $travelers > 10) $errors[] = "Number of travelers must be between 1 and 10.";
 
     if (empty($errors) && $selected_package !== null) {
-        // Save booking to xml/bookings.xml
         $bookings = simplexml_load_file($bookings_file);
         $new_booking = $bookings->addChild('booking');
         $new_booking->addChild('username', htmlspecialchars($_SESSION['username']));
-
         $new_booking->addChild('passenger_LastName', htmlspecialchars($passenger_LastName));
         $new_booking->addChild('passenger_FirstName', htmlspecialchars($passenger_FirstName));
         $new_booking->addChild('passenger_MiddleName', htmlspecialchars($passenger_MiddleName));
-
         $new_booking->addChild('email', htmlspecialchars($email));
         $new_booking->addChild('contact_number', htmlspecialchars($contact_number));
         $new_booking->addChild('package_name', htmlspecialchars((string) $selected_package->name));
         $new_booking->addChild('travel_date', htmlspecialchars($travel_date));
-        $new_booking->addChild('end_date', htmlspecialchars($end_date));
         $new_booking->addChild('travelers', htmlspecialchars($travelers));
         $new_booking->addChild('booked_on', date('Y-m-d H:i:s'));
         $bookings->asXML($bookings_file);
 
-        // Build summary to display below the form
         $booking_summary = [
             'passenger_FirstName'  => $passenger_FirstName,
             'passenger_MiddleName' => $passenger_MiddleName,
@@ -148,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'destination'         => (string) $selected_package->destination,
             'price'               => (string) $selected_package->price,
             'travel_date'         => $travel_date,
-            'end_date'            => $end_date,
             'travelers'           => $travelers,
         ];
     }
@@ -158,43 +107,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Book a Travel Package</title>
+    <title>Book a Travel Package - Aurelia</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .inline-error {
-            color: #d9534f;
-            font-size: 0.85em;
-            margin-top: -8px;
-            margin-bottom: 10px;
-            display: none;
-        }
-        .computed-info {
-            font-size: 0.9em;
-            color: #2e6da4;
-            font-weight: bold;
-            margin-top: -5px;
-            margin-bottom: 15px;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
+        .inline-error { color: #d9534f; font-size: 0.85em; margin-top: -8px; margin-bottom: 10px; display: none; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <span>Travel Package Booking System</span>
-        <span>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="booking.php">Book a Package</a>
-            <a href="transactions.php">My Transactions</a>
-            <a href="../logout.php">Logout</a>
-        </span>
-    </div>
+    <nav class="custom-navbar">
+        <div class="nav-brand">
+            <img src="../css/LOGO.png" alt="Aurelia Logo" class="nav-logo">
+            <span class="nav-title">AURELIA</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">dashboard</a>
+            <a href="booking.php">book</a>
+            <a href="transactions.php">transactions</a>
+            <a href="../logout.php">logout</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <h1>Book a Travel Package</h1>
+    <div class="app-wrapper">
+        
+        <div class="app-header">
+            <a href="dashboard.php" class="back-link">&lt; BACK TO DASHBOARD</a>
+            <h1 class="brand-text">BOOK A PACKAGE</h1>
+        </div>
 
         <?php if (!empty($errors)): ?>
             <div class="error-box">
@@ -207,115 +146,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <?php if ($booking_summary): ?>
-            <!-- Summary Details Page (shown after a successful booking) -->
             <div class="success-box">Booking confirmed! Here is your summary:</div>
             <table>
                 <tr><th>Passenger Last Name</th><td><?= htmlspecialchars($booking_summary['passenger_LastName']) ?></td></tr>
                 <tr><th>Passenger First Name</th><td><?= htmlspecialchars($booking_summary['passenger_FirstName']) ?></td></tr>
                 <tr><th>Passenger Middle Name</th><td><?= htmlspecialchars($booking_summary['passenger_MiddleName']) ?></td></tr>
-
                 <tr><th>Email</th><td><?= htmlspecialchars($booking_summary['email']) ?></td></tr>
                 <tr><th>Contact Number</th><td><?= htmlspecialchars($booking_summary['contact_number']) ?></td></tr>
                 <tr><th>Package</th><td><?= htmlspecialchars($booking_summary['package_name']) ?></td></tr>
                 <tr><th>Destination</th><td><?= htmlspecialchars($booking_summary['destination']) ?></td></tr>
                 <tr><th>Price</th><td>PHP <?= htmlspecialchars($booking_summary['price']) ?></td></tr>
                 <tr><th>Travel Date</th><td><?= htmlspecialchars($booking_summary['travel_date']) ?></td></tr>
-                <tr><th>End Date</th><td><?= htmlspecialchars($booking_summary['end_date']) ?></td></tr>
                 <tr><th>Number of Travelers</th><td><?= htmlspecialchars($booking_summary['travelers']) ?></td></tr>
             </table>
-            <a class="btn" href="booking.php">Book Another Package</a>
-            <a class="btn" href="transactions.php">View My Transactions</a>
+            <div class="action-grid" style="justify-content: flex-start;">
+                <a class="btn" href="booking.php">Book Another</a>
+                <a class="btn" href="transactions.php">View Transactions</a>
+            </div>
         <?php else: ?>
-            <!-- Booking form -->
             <form method="POST" action="booking.php" id="bookingForm">
                 <label for="passenger_LastName">Passenger Last Name</label>
-                <input 
-                    type="text" 
-                    id="passenger_LastName" 
-                    name="passenger_LastName" 
-                    required 
-                    minlength="5" 
-                    pattern="^[^0-9]+$" 
-                    value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
+                <input type="text" id="passenger_LastName" name="passenger_LastName" required minlength="5" pattern="^[^0-9]+$" value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
                 <div class="inline-error" id="error_passenger_LastName"></div>
 
                 <label for="passenger_FirstName">Passenger First Name</label>
-                <input 
-                    type="text" 
-                    id="passenger_FirstName" 
-                    name="passenger_FirstName" 
-                    required 
-                    minlength="5" 
-                    pattern="^[^0-9]+$" 
-                    value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
+                <input type="text" id="passenger_FirstName" name="passenger_FirstName" required minlength="5" pattern="^[^0-9]+$" value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
                 <div class="inline-error" id="error_passenger_FirstName"></div>
 
                 <label for="passenger_MiddleName">Passenger Middle Name (Optional)</label>
-                <input 
-                    type="text" 
-                    id="passenger_MiddleName" 
-                    name="passenger_MiddleName" 
-                    pattern="^[^0-9]+$" 
-                    value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
+                <input type="text" id="passenger_MiddleName" name="passenger_MiddleName" pattern="^[^0-9]+$" value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
                 <div class="inline-error" id="error_passenger_MiddleName"></div>
 
                 <label for="email">Email</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    required 
-                    pattern="^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$"
-                    placeholder="e.g. user@gmail.com or user@yahoo.com"
-                    value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
+                <input type="email" id="email" name="email" required pattern="^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$" placeholder="e.g. user@gmail.com or user@yahoo.com" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
                 <div class="inline-error" id="error_email"></div>
 
                 <label for="contact_number">Contact Number</label>
-                <input 
-                    type="text" 
-                    id="contact_number" 
-                    name="contact_number" 
-                    required 
-                    maxlength="11"
-                    pattern="^09\d{9}$" 
-                    placeholder="e.g. 09171234567" 
-                    value="<?= isset($_POST['contact_number']) ? htmlspecialchars($_POST['contact_number']) : '' ?>">
+                <input type="text" id="contact_number" name="contact_number" required maxlength="11" pattern="^09\d{9}$" placeholder="e.g. 09171234567" value="<?= isset($_POST['contact_number']) ? htmlspecialchars($_POST['contact_number']) : '' ?>">
                 <div class="inline-error" id="error_contact_number"></div>
 
                 <label for="package_id">Travel Package</label>
                 <select id="package_id" name="package_id" required>
-                    <option value="" data-duration="0">-- Select a package --</option>
+                    <option value="">-- Select a package --</option>
                     <?php foreach ($packages->package as $pkg): ?>
-                        <?php $duration = isset($pkg->duration) ? (int)$pkg->duration : 3; ?>
-                        <option value="<?= htmlspecialchars((string) $pkg->id) ?>"
-                            data-duration="<?= $duration ?>"
-                            <?= (isset($_POST['package_id']) && $_POST['package_id'] === (string) $pkg->id) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars((string) $pkg->name) ?> - <?= htmlspecialchars((string) $pkg->destination) ?> (PHP <?= htmlspecialchars((string) $pkg->price) ?>) [<?= $duration ?> Days]
+                        <option value="<?= htmlspecialchars((string) $pkg->id) ?>" <?= (isset($_POST['package_id']) && $_POST['package_id'] === (string) $pkg->id) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars((string) $pkg->name) ?> - <?= htmlspecialchars((string) $pkg->destination) ?> (PHP <?= htmlspecialchars((string) $pkg->price) ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
                 <div class="inline-error" id="error_package_id"></div>
 
                 <label for="travel_date">Travel Date</label>
-                <input 
-                    type="date" 
-                    id="travel_date" 
-                    name="travel_date" 
-                    required 
-                    min="<?= date('Y-m-d') ?>" 
-                    value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
+                <input type="date" id="travel_date" name="travel_date" required min="<?= date('Y-m-d') ?>" value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
                 <div class="inline-error" id="error_travel_date"></div>
-                <div class="computed-info" id="computed_end_date"></div>
 
                 <label for="travelers">Number of Travelers</label>
-                <input 
-                    type="number" 
-                    id="travelers" 
-                    name="travelers" 
-                    required 
-                    min="1" 
-                    max="10" 
-                    value="<?= isset($_POST['travelers']) ? htmlspecialchars($_POST['travelers']) : '' ?>">
+                <input type="number" id="travelers" name="travelers" required min="1" max="10" value="<?= isset($_POST['travelers']) ? htmlspecialchars($_POST['travelers']) : '' ?>">
                 <div class="inline-error" id="error_travelers"></div>
 
                 <button type="submit" id="submitBtn">Submit Booking</button>
@@ -342,122 +228,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     submitBtn.disabled = hasError;
                 }
 
-                // Required Name fields validation
                 requiredNameFields.forEach(function (id) {
                     const input = document.getElementById(id);
                     const fieldLabel = input.previousElementSibling.innerText;
                     
                     input.addEventListener("input", function () {
                         const val = input.value;
-                        if (/\d/.test(val)) {
-                            showError(id, fieldLabel + " cannot contain numbers.");
-                        } else if (val.length > 0 && val.length < 5) {
-                            showError(id, fieldLabel + " must contain at least 5 characters.");
-                        } else {
-                            showError(id, "");
-                        }
+                        if (/\d/.test(val)) showError(id, fieldLabel + " cannot contain numbers.");
+                        else if (val.length > 0 && val.length < 5) showError(id, fieldLabel + " must contain at least 5 characters.");
+                        else showError(id, "");
                     });
                 });
 
-                // Optional Middle Name validation
                 const middleNameInput = document.getElementById("passenger_MiddleName");
                 middleNameInput.addEventListener("input", function () {
                     const val = middleNameInput.value;
                     if (val.length > 0) {
-                        if (/\d/.test(val)) {
-                            showError("passenger_MiddleName", "Passenger Middle name cannot contain numbers.");
-                        } else if (val.length < 5) {
-                            showError("passenger_MiddleName", "Passenger Middle name must contain at least 5 characters.");
-                        } else {
-                            showError("passenger_MiddleName", "");
-                        }
+                        if (/\d/.test(val)) showError("passenger_MiddleName", "Passenger Middle name cannot contain numbers.");
+                        else if (val.length < 5) showError("passenger_MiddleName", "Passenger Middle name must contain at least 5 characters.");
+                        else showError("passenger_MiddleName", "");
                     } else {
                         showError("passenger_MiddleName", "");
                     }
                 });
 
-                // Email domain validation
                 const emailInput = document.getElementById("email");
                 emailInput.addEventListener("input", function () {
                     const val = emailInput.value.trim();
                     if (val.length > 0) {
                         const validDomainRegex = /@(gmail\.com|yahoo\.com)$/i;
-                        if (!validDomainRegex.test(val)) {
-                            showError("email", "Email must end with @gmail.com or @yahoo.com.");
-                        } else {
-                            showError("email", "");
-                        }
+                        if (!validDomainRegex.test(val)) showError("email", "Email must end with @gmail.com or @yahoo.com.");
+                        else showError("email", "");
                     } else {
                         showError("email", "");
                     }
                 });
 
-                // Contact number key filter & validation
                 const contactInput = document.getElementById("contact_number");
-
                 contactInput.addEventListener("keydown", function (e) {
                     const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
                     if (allowedKeys.includes(e.key)) return;
-                    if (!/^[0-9]$/.test(e.key)) {
-                        e.preventDefault();
-                    }
+                    if (!/^[0-9]$/.test(e.key)) e.preventDefault();
                 });
 
                 contactInput.addEventListener("input", function () {
                     contactInput.value = contactInput.value.replace(/\D/g, "");
                     const val = contactInput.value;
-
                     if (val.length > 0) {
-                        if (!val.startsWith("09")) {
-                            showError("contact_number", "Contact number must start with 09.");
-                        } else if (val.length !== 11) {
-                            showError("contact_number", "Contact number must be exactly 11 digits.");
-                        } else {
-                            showError("contact_number", "");
-                        }
+                        if (!val.startsWith("09")) showError("contact_number", "Contact number must start with 09.");
+                        else if (val.length !== 11) showError("contact_number", "Contact number must be exactly 11 digits.");
+                        else showError("contact_number", "");
                     } else {
                         showError("contact_number", "");
                     }
                 });
 
-                // Travel Date & Package End Date calculation
-                const packageSelect = document.getElementById("package_id");
-                const travelDateInput = document.getElementById("travel_date");
-                const computedEndDateDiv = document.getElementById("computed_end_date");
-
-                function calculateEndDate() {
-                    const selectedOption = packageSelect.options[packageSelect.selectedIndex];
-                    const durationDays = parseInt(selectedOption.getAttribute("data-duration") || "0", 10);
-                    const startDateVal = travelDateInput.value;
-
-                    if (startDateVal && durationDays > 0) {
-                        const startDate = new Date(startDateVal);
-                        startDate.setDate(startDate.getDate() + durationDays);
-                        
-                        const yyyy = startDate.getFullYear();
-                        const mm = String(startDate.getMonth() + 1).padStart(2, '0');
-                        const dd = String(startDate.getDate()).padStart(2, '0');
-                        
-                        computedEndDateDiv.innerText = `Calculated End Date: ${yyyy}-${mm}-${dd} (${durationDays} Days)`;
-                    } else {
-                        computedEndDateDiv.innerText = "";
-                    }
-                }
-
-                packageSelect.addEventListener("change", calculateEndDate);
-                travelDateInput.addEventListener("change", calculateEndDate);
-                travelDateInput.addEventListener("input", calculateEndDate);
-
-                // Travelers validation
                 const travelersInput = document.getElementById("travelers");
                 travelersInput.addEventListener("input", function () {
                     const val = parseInt(travelersInput.value, 10);
                     if (travelersInput.value !== "") {
-                        if (isNaN(val) || val < 1 || val > 10) {
-                            showError("travelers", "Number of travelers must be between 1 and 10.");
-                        } else {
-                            showError("travelers", "");
-                        }
+                        if (isNaN(val) || val < 1 || val > 10) showError("travelers", "Number of travelers must be between 1 and 10.");
+                        else showError("travelers", "");
                     } else {
                         showError("travelers", "");
                     }

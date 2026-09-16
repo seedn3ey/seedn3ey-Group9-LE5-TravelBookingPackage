@@ -1,12 +1,13 @@
 /*
- * Programmer      : Sydney Allison Magdaluyo
+ * Group      : Group #9
  * Date Created    : September 16, 2026
  * Problem Description:
- *   Single shared stylesheet for the Travel Package Booking System.
- *   Keeps the login page, dashboards, forms, and messages visually
- *   consistent without repeating styles in every file.
+ *   Entry point of the Travel Package Booking System. Sends guests to
+ *   the login page, and sends already-logged-in users straight to the
+ *   dashboard that matches their role (admin or regular user).
  */
 
+/* General Styles */
 * {
     box-sizing: border-box;
 }
@@ -19,39 +20,60 @@ body {
     color: #222;
 }
 
-.navbar {
-    background: #0b4f6c;
-    color: #fff;
-    padding: 14px 24px;
+/* =========================================
+   FLOATING LUXURY NAVBAR 
+   ========================================= */
+.custom-navbar {
+    background-color: #16124c;
+    max-width: 1100px;
+    margin: 25px auto; 
+    padding: 12px 30px;
+    border-radius: 16px; 
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.navbar a {
-    color: #fff;
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-logo {
+    width: 50px; 
+    height: 50px;
+    object-fit: contain;
+}
+
+.nav-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 34px;
+    color: #e4d5a7;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links a {
+    font-family: 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #e4d5a7;
     text-decoration: none;
-    margin-left: 16px;
-    font-weight: 500;
+    text-transform: lowercase; 
 }
 
-.navbar a:hover {
-    text-decoration: underline;
+.nav-links a:hover {
+    color: #fed954;
 }
 
-.container {
-    max-width: 760px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-h1, h2 {
-    color: #0b4f6c;
-}
-
+/* Standard Forms & Inputs */
 label {
     display: block;
     margin-top: 14px;
@@ -72,11 +94,12 @@ select {
     font-size: 14px;
 }
 
+/* Global Buttons */
 button, .btn {
     display: inline-block;
-    background: #0b4f6c;
-    color: #fff;
-    border: none;
+    background: #16124c;
+    color: #e4d5a7;
+    border: 1px solid #e4d5a7;
     padding: 10px 20px;
     margin-top: 20px;
     border-radius: 4px;
@@ -86,17 +109,12 @@ button, .btn {
 }
 
 button:hover, .btn:hover {
-    background: #08384c;
+    background: #0d0a2b;
+    color: #fed954;
+    border-color: #fed954;
 }
 
-.btn-danger {
-    background: #b00020;
-}
-
-.btn-danger:hover {
-    background: #7f0016;
-}
-
+/* Alerts & Notices */
 .error-box {
     background: #fdecea;
     border: 1px solid #f5c2c0;
@@ -124,6 +142,7 @@ button:hover, .btn:hover {
     margin-top: 16px;
 }
 
+/* Tables */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -138,42 +157,247 @@ th, td {
 }
 
 th {
-    background: #0b4f6c;
-    color: #fff;
+    background: #16124c;
+    color: #e4d5a7;
 }
 
-.checkbox-row {
-    margin-top: 14px;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.checkbox-row input {
-    width: auto;
-}
-
-.dashboard-links a {
-    display: inline-block;
-    margin: 8px 10px 8px 0;
-}
-
-
+/* Currency Input */
 .currency-wrap {
     position: relative;
-    display: inline-block; /* Or block, depending on your layout */
+    display: inline-block;
 }
 
 .currency-symbol {
     position: absolute;
-    left: 10px;          /* Distance from the left edge */
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: #555;
-    pointer-events: none; /* Ensures clicking the '₱' still focuses the input */
+    pointer-events: none;
 }
 
 #price {
-    padding-left: 28px;  /* Makes room for the Peso sign */
+    padding-left: 28px;
+}
+
+/* =========================================
+   LOGIN SPECIFIC STYLES 
+   ========================================= */
+.login-wrapper {
+    background-color: #16124c;
+    max-width: 400px;
+    margin: 120px auto; 
+    padding: 80px 40px 40px 40px; 
+    border-radius: 16px; 
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.logo-circle {
+    width: 140px;
+    height: 140px;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.brand-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.brand-header h1 {
+    font-family: 'Times New Roman', serif;
+    font-size: 42px;
+    font-weight: normal;
+    color: #e4d5a7;
+    margin: 10px 0 5px 0;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #e4d5a7;
+}
+
+.subtitle p {
+    margin: 0; 
+}
+
+.subtitle .line {
+    height: 1px;
+    width: 30px;
+    background-color: #e4d5a7;
+    position: relative;
+}
+
+.subtitle .line::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #16124c;
+    border: 1px solid #e4d5a7;
+    transform: rotate(45deg);
+    top: -2px;
+}
+
+.subtitle .line:first-child::after { left: -4px; }
+.subtitle .line:last-child::after { right: -4px; }
+
+.login-form label {
+    display: block;
+    font-family: 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: normal;
+    color: #e4d5a7;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.login-form input {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.btn-container {
+    text-align: right;
+    margin-top: 35px;
+}
+
+.btn-gold {
+    background-color: #fed954;
+    color: #16124c;
+    font-family: 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px 32px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-gold:hover {
+    background-color: #e5be38;
+}
+
+.login-form input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.login-form .checkbox-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.login-form .checkbox-row label {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #e4d5a7;
+    display: inline;
+}
+
+/* =========================================
+   DASHBOARD & APP LAYOUT STYLES 
+   ========================================= */
+.app-wrapper {
+    background-color: #ffffff;
+    max-width: 850px;
+    margin: 60px auto 40px auto; 
+    padding: 40px; 
+    border-radius: 16px; 
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.logo-circle-app {
+    width: 120px;
+    height: 120px;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-circle-app img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.brand-text {
+    font-family: 'Times New Roman', serif;
+    color: #16124c;
+    font-size: 32px;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.back-link {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #a99d79;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.back-link:hover {
+    color: #16124c;
+}
+
+.action-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.action-grid .btn {
+    margin-top: 0;
+    padding: 15px 30px;
+    font-size: 16px;
 }

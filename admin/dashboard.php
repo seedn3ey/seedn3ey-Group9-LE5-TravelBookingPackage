@@ -14,7 +14,6 @@ require_once '../includes/role_check.php';
 require_login('../login.php');
 require_role(['admin'], '../access_denied.php');
 
-// Quick stats for the dashboard
 $packages = simplexml_load_file(__DIR__ . '/../xml/packages.xml');
 $bookings = simplexml_load_file(__DIR__ . '/../xml/bookings.xml');
 $package_count = count($packages->package);
@@ -24,27 +23,35 @@ $booking_count = count($bookings->booking);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - Aurelia</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div class="navbar">
-        <span>Travel Package Booking System &mdash; Admin</span>
-        <span>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="manage.php">Manage Packages</a>
-            <a href="../logout.php">Logout</a>
-        </span>
-    </div>
+    <nav class="custom-navbar">
+        <div class="nav-brand">
+            <img src="../css/LOGO.png" alt="Aurelia Logo" class="nav-logo">
+            <span class="nav-title">AURELIA</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">dashboard</a>
+            <a href="manage.php">manage packages</a>
+            <a href="../logout.php">logout</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <p>Welcome, <?= htmlspecialchars($_SESSION['fullname']) ?>!</p>
-        <p>Role: Administrator</p>
+    <div class="app-wrapper">
 
-        <div class="dashboard-links">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="margin-bottom: 5px; color: #16124c;">Welcome, <?= htmlspecialchars($_SESSION['fullname']) ?>!</h2>
+            <p style="color: #666; margin-top: 0;">Role: Administrator</p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px;">
             <p>Total travel packages: <strong><?= $package_count ?></strong></p>
             <p>Total bookings received: <strong><?= $booking_count ?></strong></p>
+        </div>
+
+        <div class="action-grid">
             <a class="btn" href="manage.php">Manage Travel Packages</a>
         </div>
     </div>

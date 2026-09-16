@@ -17,25 +17,31 @@ require_role(['user', 'admin'], '../access_denied.php');
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard</title>
+    <title>User Dashboard - Aurelia</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div class="navbar">
-        <span>Travel Package Booking System</span>
-        <span>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="booking.php">Book a Package</a>
-            <a href="transactions.php">My Transactions</a>
-            <a href="../logout.php">Logout</a>
-        </span>
-    </div>
+    <nav class="custom-navbar">
+        <div class="nav-brand">
+            <img src="../css/LOGO.png" alt="Aurelia Logo" class="nav-logo">
+            <span class="nav-title">AURELIA</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">dashboard</a>
+            <a href="booking.php">book</a>
+            <a href="transactions.php">transactions</a>
+            <a href="../logout.php">logout</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <h1>Welcome, <?= htmlspecialchars($_SESSION['fullname']) ?>!</h1>
-        <p>Role: Regular User</p>
+    <div class="app-wrapper">
+        
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="margin-bottom: 5px; color: #16124c;">Welcome, <?= htmlspecialchars($_SESSION['fullname']) ?>!</h2>
+            <p style="color: #666; margin-top: 0;">Role: Regular User</p>
+        </div>
 
-        <div class="dashboard-links">
+        <div class="action-grid">
             <a class="btn" href="booking.php">Book a Travel Package</a>
             <a class="btn" href="transactions.php">View My Transactions</a>
         </div>

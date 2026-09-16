@@ -26,39 +26,41 @@ foreach ($bookings->booking as $b) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Transactions</title>
+    <title>My Transactions - Aurelia</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div class="navbar">
-        <span>Travel Package Booking System</span>
-        <span>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="booking.php">Book a Package</a>
-            <a href="transactions.php">My Transactions</a>
-            <a href="../logout.php">Logout</a>
-        </span>
-    </div>
+    <nav class="custom-navbar">
+        <div class="nav-brand">
+            <img src="../css/LOGO.png" alt="Aurelia Logo" class="nav-logo">
+            <span class="nav-title">AURELIA</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">dashboard</a>
+            <a href="booking.php">book</a>
+            <a href="transactions.php">transactions</a>
+            <a href="../logout.php">logout</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <h1>My Transactions</h1>
+    <div class="app-wrapper">
+        
+        <div class="app-header">
+            <a href="dashboard.php" class="back-link">&lt; BACK TO DASHBOARD</a>
+            <h1 class="brand-text">MY TRANSACTIONS</h1>
+        </div>
 
         <?php if (empty($my_bookings)): ?>
-            <p>You have no bookings yet. <a href="booking.php">Book a travel package</a>.</p>
+            <p style="text-align: center;">You have no bookings yet. <a href="booking.php">Book a travel package</a>.</p>
         <?php else: ?>
             <table>
                 <tr>
-                    <th>Package</th>
-                    <th>Travel Date</th>
-                    <th>End Date</th>
-                    <th>Travelers</th>
-                    <th>Booked On</th>
+                    <th>Package</th><th>Travel Date</th><th>Travelers</th><th>Booked On</th>
                 </tr>
                 <?php foreach ($my_bookings as $b): ?>
                 <tr>
                     <td><?= htmlspecialchars((string) $b->package_name) ?></td>
                     <td><?= htmlspecialchars((string) $b->travel_date) ?></td>
-                    <td><?= htmlspecialchars((string) ($b->end_date ?? 'N/A')) ?></td>
                     <td><?= htmlspecialchars((string) $b->travelers) ?></td>
                     <td><?= htmlspecialchars((string) $b->booked_on) ?></td>
                 </tr>
