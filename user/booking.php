@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_LastName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger Last name must contain at least 5 characters.";
-    } elseif (preg_match('/^[0-9]/', $passenger_LastName)) {
+    } elseif (preg_match('/\d/', $passenger_LastName)) {
         // ---- Numeric validation ----
         $errors[] = "Passenger Last name cannot contain numbers.";
     }
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_FirstName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger First name must contain at least 5 characters.";
-    } elseif (preg_match('/^[0-9]/', $passenger_FirstName)) {
+    } elseif (preg_match('/\d/', $passenger_FirstName)) {
         // ---- Numeric validation ----
         $errors[] = "Passenger First name cannot contain numbers.";
     }
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_MiddleName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger Middle name must contain at least 5 characters.";
-    } elseif (preg_match('/^[0-9]/', $passenger_MiddleName)) {
+    } elseif (preg_match('/\d/', $passenger_MiddleName)) {
         // ---- Numeric validation ----
         $errors[] = "Passenger Middle name cannot contain numbers.";
     }
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ---- Number validation ----
     if (!is_required($travelers)) {
         $errors[] = "Number of travelers is required.";
-    } elseif (!is_number_in_range($travelers, 1, 10)) {
+    } elseif (!is_numeric($travelers) || $travelers < 1 || $travelers > 10) {
         $errors[] = "Number of travelers must be between 1 and 10.";
     }
 
@@ -197,22 +197,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Booking form -->
             <form method="POST" action="booking.php">
                 <label for="passenger_LastName">Passenger Last Name</label>
-                <input type="text" id="passenger_LastName" name="passenger_LastName" value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
+                <input 
+                    type="text" 
+                    id="passenger_LastName" 
+                    name="passenger_LastName" 
+                    required 
+                    minlength="5" 
+                    pattern="^[^0-9].*" 
+                    title="Last name must be at least 5 characters long and cannot start with a number."
+                    value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
 
                 <label for="passenger_FirstName">Passenger First Name</label>
-                <input type="text" id="passenger_FirstName" name="passenger_FirstName" value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
+                <input 
+                    type="text" 
+                    id="passenger_FirstName" 
+                    name="passenger_FirstName" 
+                    required 
+                    minlength="5" 
+                    pattern="^[^0-9].*" 
+                    title="First name must be at least 5 characters long and cannot start with a number."
+                    value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
 
                 <label for="passenger_MiddleName">Passenger Middle Name</label>
-                <input type="text" id="passenger_MiddleName" name="passenger_MiddleName" value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
+                <input 
+                    type="text" 
+                    id="passenger_MiddleName" 
+                    name="passenger_MiddleName" 
+                    required 
+                    minlength="5" 
+                    pattern="^[^0-9].*" 
+                    title="Middle name must be at least 5 characters long and cannot start with a number."
+                    value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
 
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
 
                 <label for="contact_number">Contact Number</label>
-                <input type="text" id="contact_number" name="contact_number" placeholder="e.g. 09171234567" value="<?= isset($_POST['contact_number']) ? htmlspecialchars($_POST['contact_number']) : '' ?>">
+                <input 
+                    type="text" 
+                    id="contact_number" 
+                    name="contact_number" 
+                    required 
+                    maxlength="11"
+                    pattern="^09\d{9}$" 
+                    title="Contact number must start with 09 and be exactly 11 digits long."
+                    placeholder="e.g. 09171234567" 
+                    value="<?= isset($_POST['contact_number']) ? htmlspecialchars($_POST['contact_number']) : '' ?>">
 
                 <label for="package_id">Travel Package</label>
-                <select id="package_id" name="package_id">
+                <select id="package_id" name="package_id" required>
                     <option value="">-- Select a package --</option>
                     <?php foreach ($packages->package as $pkg): ?>
                         <option value="<?= htmlspecialchars((string) $pkg->id) ?>"
@@ -223,10 +261,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
 
                 <label for="travel_date">Travel Date</label>
-                <input type="date" id="travel_date" name="travel_date" value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
+                <input 
+                    type="date" 
+                    id="travel_date" 
+                    name="travel_date" 
+                    required 
+                    min="<?= date('Y-m-d') ?>" 
+                    value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
 
                 <label for="travelers">Number of Travelers</label>
-                <input type="number" id="travelers" name="travelers" min="1" max="10" value="<?= isset($_POST['travelers']) ? htmlspecialchars($_POST['travelers']) : '' ?>">
+                <input 
+                    type="number" 
+                    id="travelers" 
+                    name="travelers" 
+                    required 
+                    min="1" 
+                    max="10" 
+                    value="<?= isset($_POST['travelers']) ? htmlspecialchars($_POST['travelers']) : '' ?>">
 
                 <button type="submit">Submit Booking</button>
             </form>
