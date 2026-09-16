@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_LastName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger Last name must contain at least 5 characters.";
+    } elseif (preg_match('/^[0-9]/', $passenger_LastName)) {
+        // ---- Numeric validation ----
+        $errors[] = "Passenger Last name cannot contain numbers.";
     }
 
     if (!is_required($passenger_FirstName)) {
@@ -48,6 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_FirstName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger First name must contain at least 5 characters.";
+    } elseif (preg_match('/^[0-9]/', $passenger_FirstName)) {
+        // ---- Numeric validation ----
+        $errors[] = "Passenger First name cannot contain numbers.";
     }
 
     if (!is_required($passenger_MiddleName)) {
@@ -55,6 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!is_min_length($passenger_MiddleName, 5)) {
         // ---- Length validation ----
         $errors[] = "Passenger Middle name must contain at least 5 characters.";
+    } elseif (preg_match('/^[0-9]/', $passenger_MiddleName)) {
+        // ---- Numeric validation ----
+        $errors[] = "Passenger Middle name cannot contain numbers.";
     }
 
     // ---- Email validation ----
