@@ -56,21 +56,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Passenger First name cannot contain numbers.";
     }
 
-    if (!is_required($passenger_MiddleName)) {
-        $errors[] = "Passenger Middle name is required.";
-    } elseif (!is_min_length($passenger_MiddleName, 5)) {
-        // ---- Length validation ----
-        $errors[] = "Passenger Middle name must contain at least 5 characters.";
-    } elseif (preg_match('/\d/', $passenger_MiddleName)) {
-        // ---- Numeric validation ----
-        $errors[] = "Passenger Middle name cannot contain numbers.";
+    // ---- Optional Middle Name validation ----
+    if (is_required($passenger_MiddleName)) {
+        if (!is_min_length($passenger_MiddleName, 5)) {
+            $errors[] = "Passenger Middle name must contain at least 5 characters if provided.";
+        } elseif (preg_match('/\d/', $passenger_MiddleName)) {
+            $errors[] = "Passenger Middle name cannot contain numbers.";
+        }
+    } else {
+        $passenger_MiddleName = 'N/A';
     }
 
     // ---- Email validation ----
     if (!is_required($email)) {
         $errors[] = "Email is required.";
-    } elseif (!is_valid_email($email)) {
-        $errors[] = "Invalid email address.";
+    } elseif (!is_valid_email($email) || !preg_match('/@(gmail\.com|yahoo\.com)$/i', $email)) {
+        $errors[] = "Email must end with @gmail.com or @yahoo.com.";
     }
 
     // ---- Contact number ----
@@ -130,16 +131,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Build summary to display below the form
         $booking_summary = [
-            'passenger_FirstName' => $passenger_FirstName,
+            'passenger_FirstName'  => $passenger_FirstName,
             'passenger_MiddleName' => $passenger_MiddleName,
-            'passenger_LastName' => $passenger_LastName,
-            'email'          => $email,
-            'contact_number' => $contact_number,
-            'package_name'   => (string) $selected_package->name,
-            'destination'    => (string) $selected_package->destination,
-            'price'          => (string) $selected_package->price,
-            'travel_date'    => $travel_date,
-            'travelers'      => $travelers,
+            'passenger_LastName'   => $passenger_LastName,
+            'email'               => $email,
+            'contact_number'      => $contact_number,
+            'package_name'        => (string) $selected_package->name,
+            'destination'         => (string) $selected_package->destination,
+            'price'               => (string) $selected_package->price,
+            'travel_date'         => $travel_date,
+            'travelers'           => $travelers,
         ];
     }
 }
@@ -150,6 +151,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Book a Travel Package</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .inline-error {
+            color: #d9534f;
+            font-size: 0.85em;
+            margin-top: -8px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
@@ -195,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a class="btn" href="transactions.php">View My Transactions</a>
         <?php else: ?>
             <!-- Booking form -->
-            <form method="POST" action="booking.php">
+            <form method="POST" action="booking.php" id="bookingForm">
                 <label for="passenger_LastName">Passenger Last Name</label>
                 <input 
                     type="text" 
@@ -203,9 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="passenger_LastName" 
                     required 
                     minlength="5" 
-                    pattern="^[^0-9].*" 
-                    title="Last name must be at least 5 characters long and cannot start with a number."
+                    pattern="^[^0-9]+$" 
                     value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
+                <div class="inline-error" id="error_passenger_LastName"></div>
 
                 <label for="passenger_FirstName">Passenger First Name</label>
                 <input 
@@ -214,20 +229,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="passenger_FirstName" 
                     required 
                     minlength="5" 
-                    pattern="^[^0-9].*" 
-                    title="First name must be at least 5 characters long and cannot start with a number."
+                    pattern="^[^0-9]+$" 
                     value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
+                <div class="inline-error" id="error_passenger_FirstName"></div>
 
-                <label for="passenger_MiddleName">Passenger Middle Name</label>
+                <label for="passenger_MiddleName">Passenger Middle Name (Optional)</label>
                 <input 
                     type="text" 
                     id="passenger_MiddleName" 
                     name="passenger_MiddleName" 
-                    required 
-                    minlength="5" 
-                    pattern="^[^0-9].*" 
-                    title="Middle name must be at least 5 characters long and cannot start with a number."
+                    pattern="^[^0-9]+$" 
                     value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
+                <div class="inline-error" id="error_passenger_MiddleName"></div>
 
                 <label for="email">Email</label>
                 <input 
@@ -235,7 +248,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     id="email" 
                     name="email" 
                     required 
+                    pattern="^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$"
+                    placeholder="e.g. user@gmail.com or user@yahoo.com"
                     value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
+                <div class="inline-error" id="error_email"></div>
 
                 <label for="contact_number">Contact Number</label>
                 <input 
@@ -245,9 +261,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     required 
                     maxlength="11"
                     pattern="^09\d{9}$" 
-                    title="Contact number must start with 09 and be exactly 11 digits long."
                     placeholder="e.g. 09171234567" 
                     value="<?= isset($_POST['contact_number']) ? htmlspecialchars($_POST['contact_number']) : '' ?>">
+                <div class="inline-error" id="error_contact_number"></div>
 
                 <label for="package_id">Travel Package</label>
                 <select id="package_id" name="package_id" required>
@@ -259,6 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <div class="inline-error" id="error_package_id"></div>
 
                 <label for="travel_date">Travel Date</label>
                 <input 
@@ -268,6 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     required 
                     min="<?= date('Y-m-d') ?>" 
                     value="<?= isset($_POST['travel_date']) ? htmlspecialchars($_POST['travel_date']) : '' ?>">
+                <div class="inline-error" id="error_travel_date"></div>
 
                 <label for="travelers">Number of Travelers</label>
                 <input 
@@ -278,9 +296,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     min="1" 
                     max="10" 
                     value="<?= isset($_POST['travelers']) ? htmlspecialchars($_POST['travelers']) : '' ?>">
+                <div class="inline-error" id="error_travelers"></div>
 
-                <button type="submit">Submit Booking</button>
+                <button type="submit" id="submitBtn">Submit Booking</button>
             </form>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const requiredNameFields = ["passenger_LastName", "passenger_FirstName"];
+                const submitBtn = document.getElementById("submitBtn");
+                const errorState = {};
+
+                function showError(fieldId, message) {
+                    const errorDiv = document.getElementById("error_" + fieldId);
+                    if (errorDiv) {
+                        errorDiv.innerText = message;
+                        errorDiv.style.display = message ? "block" : "none";
+                    }
+                    errorState[fieldId] = !!message;
+                    toggleSubmitButton();
+                }
+
+                function toggleSubmitButton() {
+                    const hasError = Object.values(errorState).some(state => state === true);
+                    submitBtn.disabled = hasError;
+                }
+
+                // Required Name fields validation
+                requiredNameFields.forEach(function (id) {
+                    const input = document.getElementById(id);
+                    const fieldLabel = input.previousElementSibling.innerText;
+                    
+                    input.addEventListener("input", function () {
+                        const val = input.value;
+                        if (/\d/.test(val)) {
+                            showError(id, fieldLabel + " cannot contain numbers.");
+                        } else if (val.length > 0 && val.length < 5) {
+                            showError(id, fieldLabel + " must contain at least 5 characters.");
+                        } else {
+                            showError(id, "");
+                        }
+                    });
+                });
+
+                // Optional Middle Name validation
+                const middleNameInput = document.getElementById("passenger_MiddleName");
+                middleNameInput.addEventListener("input", function () {
+                    const val = middleNameInput.value;
+                    if (val.length > 0) {
+                        if (/\d/.test(val)) {
+                            showError("passenger_MiddleName", "Passenger Middle name cannot contain numbers.");
+                        } else if (val.length < 5) {
+                            showError("passenger_MiddleName", "Passenger Middle name must contain at least 5 characters.");
+                        } else {
+                            showError("passenger_MiddleName", "");
+                        }
+                    } else {
+                        showError("passenger_MiddleName", "");
+                    }
+                });
+
+                // Email domain validation
+                const emailInput = document.getElementById("email");
+                emailInput.addEventListener("input", function () {
+                    const val = emailInput.value.trim();
+                    if (val.length > 0) {
+                        const validDomainRegex = /@(gmail\.com|yahoo\.com)$/i;
+                        if (!validDomainRegex.test(val)) {
+                            showError("email", "Email must end with @gmail.com or @yahoo.com.");
+                        } else {
+                            showError("email", "");
+                        }
+                    } else {
+                        showError("email", "");
+                    }
+                });
+
+                // Contact number key filter & validation
+                const contactInput = document.getElementById("contact_number");
+
+                contactInput.addEventListener("keydown", function (e) {
+                    const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
+                    if (allowedKeys.includes(e.key)) return;
+                    if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                contactInput.addEventListener("input", function () {
+                    contactInput.value = contactInput.value.replace(/\D/g, "");
+                    const val = contactInput.value;
+
+                    if (val.length > 0) {
+                        if (!val.startsWith("09")) {
+                            showError("contact_number", "Contact number must start with 09.");
+                        } else if (val.length !== 11) {
+                            showError("contact_number", "Contact number must be exactly 11 digits.");
+                        } else {
+                            showError("contact_number", "");
+                        }
+                    } else {
+                        showError("contact_number", "");
+                    }
+                });
+
+                // Travelers validation
+                const travelersInput = document.getElementById("travelers");
+                travelersInput.addEventListener("input", function () {
+                    const val = parseInt(travelersInput.value, 10);
+                    if (travelersInput.value !== "") {
+                        if (isNaN(val) || val < 1 || val > 10) {
+                            showError("travelers", "Number of travelers must be between 1 and 10.");
+                        } else {
+                            showError("travelers", "");
+                        }
+                    } else {
+                        showError("travelers", "");
+                    }
+                });
+            });
+            </script>
         <?php endif; ?>
     </div>
 </body>
