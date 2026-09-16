@@ -1,0 +1,160 @@
+/*
+ * Programmer      : Sydney Allison Magdaluyo
+ * Date Created    : September 16, 2026
+ * Problem Description:
+ *   Single shared stylesheet for the Travel Package Booking System.
+ *   Keeps the login page, dashboards, forms, and messages visually
+ *   consistent without repeating styles in every file.
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #eef3f7;
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+.navbar {
+    background: #0b4f6c;
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 16px;
+    font-weight: 500;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 760px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+h1, h2 {
+    color: #0b4f6c;
+}
+
+label {
+    display: block;
+    margin-top: 14px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 9px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+button, .btn {
+    display: inline-block;
+    background: #0b4f6c;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    background: #08384c;
+}
+
+.btn-danger {
+    background: #b00020;
+}
+
+.btn-danger:hover {
+    background: #7f0016;
+}
+
+.error-box {
+    background: #fdecea;
+    border: 1px solid #f5c2c0;
+    color: #b00020;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+.notice-box {
+    background: #fff8e1;
+    border: 1px solid #ffe08a;
+    color: #7a5b00;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+.success-box {
+    background: #e6f4ea;
+    border: 1px solid #b6dfc0;
+    color: #1e7d32;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #0b4f6c;
+    color: #fff;
+}
+
+.checkbox-row {
+    margin-top: 14px;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-row input {
+    width: auto;
+}
+
+.dashboard-links a {
+    display: inline-block;
+    margin: 8px 10px 8px 0;
+}

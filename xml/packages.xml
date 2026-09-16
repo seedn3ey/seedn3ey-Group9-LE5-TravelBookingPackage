@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packages>
+    <package>
+        <id>1</id>
+        <name>Boracay Island Getaway</name>
+        <destination>Boracay, Aklan</destination>
+        <price>8999</price>
+        <duration>3 Days / 2 Nights</duration>
+    </package>
+    <package>
+        <id>2</id>
+        <name>Palawan Underground River Adventure</name>
+        <destination>Puerto Princesa, Palawan</destination>
+        <price>12499</price>
+        <duration>4 Days / 3 Nights</duration>
+    </package>
+    <package>
+        <id>3</id>
+        <name>Baguio Highlands Escape</name>
+        <destination>Baguio City</destination>
+        <price>5499</price>
+        <duration>2 Days / 1 Night</duration>
+    </package>
+    <package>
+        <id>4</id>
+        <name>Tokyo City Explorer</name>
+        <destination>Tokyo, Japan</destination>
+        <price>45999</price>
+        <duration>5 Days / 4 Nights</duration>
+    </package>
+</packages>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Dummy accounts for classroom testing only. Do NOT use real passwords. -->
+<users>
+    <user>
+        <username>admin01</username>
+        <password>Admin@123</password>
+        <role>admin</role>
+        <fullname>Travel Admin</fullname>
+    </user>
+    <user>
+        <username>user01</username>
+        <password>User@123</password>
+        <role>user</role>
+        <fullname>Juan Dela Cruz</fullname>
+    </user>
+</users>
