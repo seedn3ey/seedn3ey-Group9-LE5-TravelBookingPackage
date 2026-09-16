@@ -25,9 +25,9 @@ $errors = [];
 $booking_summary = null; // holds data to display after a successful submission
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $passenger_LastName = clean_input($_POST['passenger_Lastname'] ?? '');
-    $passenger_FirstName = clean_input($_POST['passenger_Firstname'] ?? '');
-    $passenger_MiddleName = clean_input($_POST['passenger_Middlename'] ?? '');
+    $passenger_LastName = clean_input($_POST['passenger_LastName'] ?? '');
+    $passenger_FirstName = clean_input($_POST['passenger_FirstName'] ?? '');
+    $passenger_MiddleName = clean_input($_POST['passenger_MiddleName'] ?? '');
 
     $email          = clean_input($_POST['email'] ?? '');
     $contact_number = clean_input($_POST['contact_number'] ?? '');
@@ -107,9 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_booking = $bookings->addChild('booking');
         $new_booking->addChild('username', htmlspecialchars($_SESSION['username']));
 
+        $new_booking->addChild('passenger_LastName', htmlspecialchars($passenger_LastName));
         $new_booking->addChild('passenger_FirstName', htmlspecialchars($passenger_FirstName));
         $new_booking->addChild('passenger_MiddleName', htmlspecialchars($passenger_MiddleName));
-        $new_booking->addChild('passenger_LastName', htmlspecialchars($passenger_LastName));
 
         $new_booking->addChild('email', htmlspecialchars($email));
         $new_booking->addChild('contact_number', htmlspecialchars($contact_number));
