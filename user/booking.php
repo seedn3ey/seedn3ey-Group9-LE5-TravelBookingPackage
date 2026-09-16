@@ -25,7 +25,10 @@ $errors = [];
 $booking_summary = null; // holds data to display after a successful submission
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $passenger_name = clean_input($_POST['passenger_name'] ?? '');
+    $passenger_LastName = clean_input($_POST['passenger_Lastname'] ?? '');
+    $passenger_FirstName = clean_input($_POST['passenger_Firstname'] ?? '');
+    $passenger_MiddleName = clean_input($_POST['passenger_Middlename'] ?? '');
+
     $email          = clean_input($_POST['email'] ?? '');
     $contact_number = clean_input($_POST['contact_number'] ?? '');
     $package_id     = clean_input($_POST['package_id'] ?? '');
@@ -33,11 +36,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $travelers      = clean_input($_POST['travelers'] ?? '');
 
     // ---- Required fields ----
-    if (!is_required($passenger_name)) {
-        $errors[] = "Passenger name is required.";
-    } elseif (!is_min_length($passenger_name, 5)) {
+    if (!is_required($passenger_LastName)) {
+        $errors[] = "Passenger Last name is required.";
+    } elseif (!is_min_length($passenger_LastName, 5)) {
         // ---- Length validation ----
-        $errors[] = "Passenger name must contain at least 5 characters.";
+        $errors[] = "Passenger Last name must contain at least 5 characters.";
+    }
+
+    if (!is_required($passenger_FirstName)) {
+        $errors[] = "Passenger First name is required.";
+    } elseif (!is_min_length($passenger_FirstName, 5)) {
+        // ---- Length validation ----
+        $errors[] = "Passenger First name must contain at least 5 characters.";
+    }
+
+    if (!is_required($passenger_MiddleName)) {
+        $errors[] = "Passenger Middle name is required.";
+    } elseif (!is_min_length($passenger_MiddleName, 5)) {
+        // ---- Length validation ----
+        $errors[] = "Passenger Middle name must contain at least 5 characters.";
     }
 
     // ---- Email validation ----
@@ -89,7 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $bookings = simplexml_load_file($bookings_file);
         $new_booking = $bookings->addChild('booking');
         $new_booking->addChild('username', htmlspecialchars($_SESSION['username']));
-        $new_booking->addChild('passenger_name', htmlspecialchars($passenger_name));
+
+        $new_booking->addChild('passenger_FirstName', htmlspecialchars($passenger_FirstName));
+        $new_booking->addChild('passenger_MiddleName', htmlspecialchars($passenger_MiddleName));
+        $new_booking->addChild('passenger_LastName', htmlspecialchars($passenger_LastName));
+
         $new_booking->addChild('email', htmlspecialchars($email));
         $new_booking->addChild('contact_number', htmlspecialchars($contact_number));
         $new_booking->addChild('package_name', htmlspecialchars((string) $selected_package->name));
@@ -100,7 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Build summary to display below the form
         $booking_summary = [
-            'passenger_name' => $passenger_name,
+            'passenger_FirstName' => $passenger_FirstName,
+            'passenger_MiddleName' => $passenger_MiddleName,
+            'passenger_LastName' => $passenger_LastName,
             'email'          => $email,
             'contact_number' => $contact_number,
             'package_name'   => (string) $selected_package->name,
@@ -147,7 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Summary Details Page (shown after a successful booking) -->
             <div class="success-box">Booking confirmed! Here is your summary:</div>
             <table>
-                <tr><th>Passenger Name</th><td><?= htmlspecialchars($booking_summary['passenger_name']) ?></td></tr>
+                <tr><th>Passenger Last Name</th><td><?= htmlspecialchars($booking_summary['passenger_LastName']) ?></td></tr>
+                <tr><th>Passenger First Name</th><td><?= htmlspecialchars($booking_summary['passenger_FirstName']) ?></td></tr>
+                <tr><th>Passenger Middle Name</th><td><?= htmlspecialchars($booking_summary['passenger_MiddleName']) ?></td></tr>
+
                 <tr><th>Email</th><td><?= htmlspecialchars($booking_summary['email']) ?></td></tr>
                 <tr><th>Contact Number</th><td><?= htmlspecialchars($booking_summary['contact_number']) ?></td></tr>
                 <tr><th>Package</th><td><?= htmlspecialchars($booking_summary['package_name']) ?></td></tr>
@@ -161,8 +187,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php else: ?>
             <!-- Booking form -->
             <form method="POST" action="booking.php">
-                <label for="passenger_name">Passenger Name</label>
-                <input type="text" id="passenger_name" name="passenger_name" value="<?= isset($_POST['passenger_name']) ? htmlspecialchars($_POST['passenger_name']) : '' ?>">
+                <label for="passenger_LastName">Passenger Last Name</label>
+                <input type="text" id="passenger_LastName" name="passenger_LastName" value="<?= isset($_POST['passenger_LastName']) ? htmlspecialchars($_POST['passenger_LastName']) : '' ?>">
+
+                <label for="passenger_MiddleName">Passenger Middle Name</label>
+                <input type="text" id="passenger_MiddleName" name="passenger_MiddleName" value="<?= isset($_POST['passenger_MiddleName']) ? htmlspecialchars($_POST['passenger_MiddleName']) : '' ?>">
+
+                <label for="passenger_FirstName">Passenger First Name</label>
+                <input type="text" id="passenger_FirstName" name="passenger_FirstName" value="<?= isset($_POST['passenger_FirstName']) ? htmlspecialchars($_POST['passenger_FirstName']) : '' ?>">
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
